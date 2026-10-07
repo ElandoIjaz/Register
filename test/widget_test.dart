@@ -3,11 +3,47 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:register/models/person.dart';
 import 'package:register/models/user.dart';
 import 'package:register/services/user_manager.dart';
+import 'package:register/validators/auth_validator.dart';
 import 'package:register/screens/home_screen.dart';
 import 'package:register/screens/login_screen.dart';
 import 'package:register/main.dart';
 
 void main() {
+  group('AuthValidator Clean Code Tests', () {
+    test('validateFullName handles valid and invalid inputs', () {
+      expect(AuthValidator.validateFullName(''), isNotNull);
+      expect(AuthValidator.validateFullName('  '), isNotNull);
+      expect(AuthValidator.validateFullName('Ed'), isNotNull);
+      expect(AuthValidator.validateFullName('Elando Ijaz M'), isNull);
+    });
+
+    test('validateUsername checks whitespace and length', () {
+      expect(AuthValidator.validateUsername(''), isNotNull);
+      expect(AuthValidator.validateUsername('user name'), isNotNull);
+      expect(AuthValidator.validateUsername('ed'), isNotNull);
+      expect(AuthValidator.validateUsername('elando'), isNull);
+    });
+
+    test('validateNim allows alphanumeric NIM', () {
+      expect(AuthValidator.validateNim(''), isNotNull);
+      expect(AuthValidator.validateNim('E41253170'), isNull);
+      expect(AuthValidator.validateNim('21102001'), isNull);
+    });
+
+    test('validateEmail validates standard and academic domains', () {
+      expect(AuthValidator.validateEmail('invalid-email'), isNotNull);
+      expect(AuthValidator.validateEmail('edo@gmail.com'), isNull);
+      expect(AuthValidator.validateEmail('edo@polije.ac.id'), isNull);
+    });
+
+    test('validatePhone and validatePassword work as expected', () {
+      expect(AuthValidator.validatePhone('123'), isNotNull);
+      expect(AuthValidator.validatePhone('089516477890'), isNull);
+      expect(AuthValidator.validatePassword('123'), isNotNull);
+      expect(AuthValidator.validatePassword('estehmanis'), isNull);
+    });
+  });
+
   group('OOP Concepts Tests', () {
     test('User extends Person and properly encapsulates data', () {
       final user = User(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/user_manager.dart';
+import '../validators/auth_validator.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
 
@@ -182,12 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   borderSide: BorderSide(color: Colors.grey.shade300),
                                 ),
                               ),
-                              validator: (val) {
-                                if (val == null || val.trim().isEmpty) {
-                                  return 'Harap masukkan Username, Email, atau NIM';
-                                }
-                                return null;
-                              },
+                              validator: AuthValidator.validateIdentifier,
                             ),
                             const SizedBox(height: 18),
 
@@ -229,12 +225,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   borderSide: BorderSide(color: Colors.grey.shade300),
                                 ),
                               ),
-                              validator: (val) {
-                                if (val == null || val.isEmpty) {
-                                  return 'Password tidak boleh kosong';
-                                }
-                                return null;
-                              },
+                              validator: AuthValidator.validatePassword,
                             ),
                             const SizedBox(height: 24),
 

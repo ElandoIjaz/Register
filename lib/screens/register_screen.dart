@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/user.dart';
 import '../services/user_manager.dart';
+import '../validators/auth_validator.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -76,10 +77,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    if (_selectedBirthDate == null) {
+    final birthDateError = AuthValidator.validateBirthDate(_selectedBirthDate);
+    if (birthDateError != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Silakan pilih tanggal lahir Anda!'),
+        SnackBar(
+          content: Text(birthDateError),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -234,15 +236,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             hint: 'Masukkan nama lengkap',
                             prefixIcon: Icons.person_outline,
                           ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Nama lengkap tidak boleh kosong';
-                            }
-                            if (value.trim().length < 3) {
-                              return 'Nama minimal 3 karakter';
-                            }
-                            return null;
-                          },
+                          validator: AuthValidator.validateFullName,
                         ),
                         const SizedBox(height: 16),
 
@@ -261,15 +255,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       hint: 'contoh: siti_mina',
                                       prefixIcon: Icons.account_circle_outlined,
                                     ),
-                                    validator: (value) {
-                                      if (value == null || value.trim().isEmpty) {
-                                        return 'Wajib diisi';
-                                      }
-                                      if (value.contains(' ')) {
-                                        return 'Tanpa spasi';
-                                      }
-                                      return null;
-                                    },
+                                    validator: AuthValidator.validateUsername,
                                   ),
                                 ],
                               ),
@@ -287,12 +273,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       hint: 'contoh: E41253170',
                                       prefixIcon: Icons.pin_outlined,
                                     ),
-                                    validator: (value) {
-                                      if (value == null || value.trim().isEmpty) {
-                                        return 'Wajib diisi';
-                                      }
-                                      return null;
-                                    },
+                                    validator: AuthValidator.validateNim,
                                   ),
                                 ],
                               ),
@@ -310,16 +291,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             hint: 'contoh: user@email.com',
                             prefixIcon: Icons.email_outlined,
                           ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Email tidak boleh kosong';
-                            }
-                            final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$');
-                            if (!emailRegex.hasMatch(value.trim())) {
-                              return 'Format email tidak valid (contoh: nama@domain.com)';
-                            }
-                            return null;
-                          },
+                          validator: AuthValidator.validateEmail,
                         ),
                         const SizedBox(height: 16),
 
@@ -337,12 +309,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   hint: 'Tempat lahir (cth: Bandung)',
                                   prefixIcon: Icons.location_city_outlined,
                                 ),
-                                validator: (val) {
-                                  if (val == null || val.trim().isEmpty) {
-                                    return 'Wajib diisi';
-                                  }
-                                  return null;
-                                },
+                                validator: AuthValidator.validateBirthPlace,
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -356,12 +323,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   hint: 'Pilih tanggal',
                                   prefixIcon: Icons.calendar_today_outlined,
                                 ),
-                                validator: (val) {
-                                  if (val == null || val.isEmpty) {
-                                    return 'Pilih tanggal';
-                                  }
-                                  return null;
-                                },
+                                validator: (val) =>
+                                    val == null || val.isEmpty ? 'Pilih tanggal' : null,
                               ),
                             ),
                           ],
@@ -404,15 +367,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             hint: 'contoh: 081234567890',
                             prefixIcon: Icons.phone_outlined,
                           ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Nomor HP tidak boleh kosong';
-                            }
-                            if (value.trim().length < 9) {
-                              return 'Nomor HP minimal 9 digit';
-                            }
-                            return null;
-                          },
+                          validator: AuthValidator.validatePhone,
                         ),
                         const SizedBox(height: 16),
 
@@ -436,15 +391,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               },
                             ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Password tidak boleh kosong';
-                            }
-                            if (value.length < 6) {
-                              return 'Password minimal 6 karakter';
-                            }
-                            return null;
-                          },
+                          validator: AuthValidator.validatePassword,
                         ),
                         const SizedBox(height: 28),
 
