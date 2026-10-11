@@ -1,179 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:register/models/person.dart';
-import 'package:register/models/user.dart';
-import 'package:register/services/user_manager.dart';
-import 'package:register/validators/auth_validator.dart';
-import 'package:register/screens/home_screen.dart';
-import 'package:register/screens/login_screen.dart';
 import 'package:register/main.dart';
+import 'package:register/screens/login_screen.dart';
 
 void main() {
-  group('AuthValidator Clean Code Tests', () {
-    test('validateFullName handles valid and invalid inputs', () {
-      expect(AuthValidator.validateFullName(''), isNotNull);
-      expect(AuthValidator.validateFullName('  '), isNotNull);
-      expect(AuthValidator.validateFullName('Ed'), isNotNull);
-      expect(AuthValidator.validateFullName('Elando Ijaz M'), isNull);
-    });
+  testWidgets('RegisterPage menampilkan semua input', (tester) async {
+    await tester.pumpWidget(const MyApp());
 
-    test('validateUsername checks whitespace and length', () {
-      expect(AuthValidator.validateUsername(''), isNotNull);
-      expect(AuthValidator.validateUsername('user name'), isNotNull);
-      expect(AuthValidator.validateUsername('ed'), isNotNull);
-      expect(AuthValidator.validateUsername('elando'), isNull);
-    });
-
-    test('validateNim allows alphanumeric NIM', () {
-      expect(AuthValidator.validateNim(''), isNotNull);
-      expect(AuthValidator.validateNim('E41253170'), isNull);
-      expect(AuthValidator.validateNim('21102001'), isNull);
-    });
-
-    test('validateEmail validates standard and academic domains', () {
-      expect(AuthValidator.validateEmail('invalid-email'), isNotNull);
-      expect(AuthValidator.validateEmail('edo@gmail.com'), isNull);
-      expect(AuthValidator.validateEmail('edo@polije.ac.id'), isNull);
-    });
-
-    test('validatePhone and validatePassword work as expected', () {
-      expect(AuthValidator.validatePhone('123'), isNotNull);
-      expect(AuthValidator.validatePhone('089516477890'), isNull);
-      expect(AuthValidator.validatePassword('123'), isNotNull);
-      expect(AuthValidator.validatePassword('estehmanis'), isNull);
-    });
+    expect(find.text('Fullname'), findsOneWidget);
+    expect(find.text('Username'), findsOneWidget);
+    expect(find.text('Email'), findsOneWidget);
+    expect(find.text('Tgl Lahir'), findsOneWidget);
+    expect(find.text('Jenis Kelamin'), findsOneWidget);
+    expect(find.text('No.Hp'), findsOneWidget);
+    expect(find.text('Password'), findsOneWidget);
+    expect(find.text('Alamat'), findsOneWidget);
+    expect(find.text('Submit Pendaftaran'), findsOneWidget);
   });
 
-  group('OOP Concepts Tests', () {
-    test('User extends Person and properly encapsulates data', () {
-      final user = User(
-        fullName: 'Budi Santoso',
-        username: 'budis',
-        nim: '21102002',
-        email: 'budi@example.com',
-        birthPlace: 'Surabaya',
-        birthDate: DateTime(2001, 8, 20),
-        gender: 'Laki-laki',
-        phone: '081298765432',
-        password: 'rahasia123',
-      );
+  testWidgets('Submit form kosong menampilkan pesan validasi', (tester) async {
+    await tester.pumpWidget(const MyApp());
 
-      // Verify inheritance
-      expect(user, isA<Person>());
-      expect(user.fullName, 'Budi Santoso');
-      expect(user.email, 'budi@example.com');
-      expect(user.nim, '21102002');
-      expect(user.birthPlaceAndDate, 'Surabaya, 20-08-2001');
+    await tester.ensureVisible(find.text('Submit Pendaftaran'));
+    await tester.tap(find.text('Submit Pendaftaran'));
+    await tester.pump();
 
-      // Verify encapsulation
-      expect(user.verifyPassword('rahasia123'), isTrue);
-      expect(user.verifyPassword('wrongpassword'), isFalse);
-
-      // Verify polymorphism
-      expect(user.getRoleDescription(), contains('NIM: 21102002'));
-    });
-
-    test('UserManager handles registration and login correctly', () {
-      final manager = UserManager();
-
-      final testUser = User(
-        fullName: 'Ahmad Dahlan',
-        username: 'ahmad',
-        nim: '21102099',
-        email: 'ahmad@example.com',
-        birthPlace: 'Yogyakarta',
-        birthDate: DateTime(2000, 1, 1),
-        gender: 'Laki-laki',
-        phone: '081233334444',
-        password: 'password_ahmad',
-      );
-
-      // Register new user
-      final regResult = manager.register(testUser);
-      expect(regResult.isSuccess, isTrue);
-
-      // Duplicate username rejected
-      final duplicateResult = manager.register(testUser);
-      expect(duplicateResult.isSuccess, isFalse);
-
-      // Login with correct credentials
-      final loginResult = manager.login('ahmad', 'password_ahmad');
-      expect(loginResult.isSuccess, isTrue);
-      expect(loginResult.user?.fullName, 'Ahmad Dahlan');
-      expect(manager.currentUser?.email, 'ahmad@example.com');
-
-      // Logout
-      manager.logout();
-      expect(manager.currentUser, isNull);
-    });
+    expect(find.text('Fullname wajib diisi'), findsOneWidget);
+    expect(find.text('Password wajib diisi'), findsOneWidget);
   });
 
-  group('Screen Widget Tests', () {
-    testWidgets('App renders RegisterScreen with required fields', (tester) async {
-      await tester.pumpWidget(const MyApp());
-      await tester.pumpAndSettle();
+  testWidgets('LoginPage menampilkan Snackbar saat login', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: LoginPage()));
 
-      expect(find.text('Pendaftaran Akun'), findsOneWidget);
-      expect(find.text('1. Nama Lengkap'), findsOneWidget);
-      expect(find.text('2. Username'), findsOneWidget);
-      expect(find.text('3. NIM'), findsOneWidget);
-      expect(find.text('4. Email'), findsOneWidget);
-      expect(find.text('5. Tempat / Tanggal Lahir'), findsOneWidget);
-      expect(find.text('6. Jenis Kelamin'), findsOneWidget);
-      expect(find.text('7. Nomor Handphone (No HP)'), findsOneWidget);
-      expect(find.text('8. Password'), findsOneWidget);
-      expect(find.text('Daftar Sekarang'), findsOneWidget);
-    });
+    await tester.enterText(find.byType(TextField).at(0), 'mina');
+    await tester.enterText(find.byType(TextField).at(1), '123456');
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+    await tester.pump();
 
-    testWidgets('HomeScreen correctly displays full name and email', (tester) async {
-      final testUser = User(
-        fullName: 'Citra Kirana',
-        username: 'citra',
-        nim: '21102055',
-        email: 'citra@example.com',
-        birthPlace: 'Semarang',
-        birthDate: DateTime(2003, 11, 10),
-        gender: 'Perempuan',
-        phone: '081255556666',
-        password: 'password_citra',
-      );
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: HomeScreen(user: testUser),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      // Memastikan nama lengkap dan email tampil di homepage
-      expect(find.text('Citra Kirana'), findsAtLeastNWidgets(1));
-      expect(find.text('citra@example.com'), findsAtLeastNWidgets(1));
-      expect(find.text('Homepage'), findsOneWidget);
-    });
-
-    testWidgets('LoginScreen logs in and navigates to HomeScreen', (tester) async {
-      final seededUser = UserManager().registeredUsers.first;
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: LoginScreen(prefilledUsername: seededUser.username),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      // Masukkan password akun bawaan demo
-      final passwordField = find.byType(TextFormField).last;
-      await tester.enterText(passwordField, 'estehmanis');
-      await tester.pump();
-
-      // Klik tombol masuk
-      final loginBtn = find.text('Masuk (Login)');
-      await tester.tap(loginBtn);
-      await tester.pumpAndSettle();
-
-      // Harusnya sekarang berada di HomeScreen dan menampilkan nama lengkap dan email user
-      expect(find.text(seededUser.fullName), findsAtLeastNWidgets(1));
-      expect(find.text(seededUser.email), findsAtLeastNWidgets(1));
-    });
+    expect(find.text('Yeay, selamat datang kembali, mina!'), findsOneWidget);
   });
 }
